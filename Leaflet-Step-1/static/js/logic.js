@@ -1,12 +1,12 @@
-
+// main url needed to run 
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-  
+// use d3 to pass the variable 
 d3.json(queryUrl, data => {
 
     createFeatures(data.features);
 });
-
+// function to choose color for different range of magnitude
 function chooseColor(color){
     return color > 5 ? '#660000':
         color > 4 ? '#cc0000':
@@ -15,11 +15,12 @@ function chooseColor(color){
         color > 1 ? '#cccc00': '#99cc00';
 }
 
-
+// 
 function createFeatures(earthquakeData) {
-
+    // create circle for each lat and lng with magnitude as the circle size
     function circleSize(feature,latlng) {
         return new L.Circle(latlng, {
+            // create bigger size to dispaly in the map
             radius:feature.properties.mag * 20000,
             fillOpacity:1,
             color:"black",
@@ -28,15 +29,17 @@ function createFeatures(earthquakeData) {
             })
 
     }
+    // create the popup to show the info of each earthquake
     function addDetails(feature,layer){
         layer.bindPopup("<h3>"+ feature.properties.place + "</h3><hr><p>Magnitude: <strong>"
             + feature.properties.mag + "</strong><hr>" + new Date(feature.properties.time) + "</p>")
     }
+    // define variable to store structure for the map by using geoJSON
     var earthquake = L.geoJSON(earthquakeData, {
         onEachFeature:addDetails,
         pointToLayer:circleSize
     });
-
+    // call the function to create map with features in the earthquake
     createMap(earthquake);
 
 }
@@ -50,15 +53,15 @@ function createMap(earthquake){
         id: "light-v10",
         accessToken: API_KEY
         });
-
+    // define map
     var map = L.map("map",{
         center:[37,-122],
         zoom:4,
         layers:[light,earthquake]
     });
-    
+    // define legend
     var legend = L.control({position: "bottomright"});
-
+    // add infomation and range for the legend
     legend.onAdd = function(map){
         var div = L.DomUtil.create('div', 'info legend'),
             steps = [0,1,2,3,4,5],
@@ -71,6 +74,7 @@ function createMap(earthquake){
         }
         return div;
     }
+    // add legend to the map
     legend.addTo(map)
 }
 
